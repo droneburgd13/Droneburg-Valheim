@@ -1,0 +1,29 @@
+# Secrets
+*.env
+*.secret
+*.token
+*webhook*
+credentials*
+secrets*
+
+# Server/private data
+worlds/
+worlds_local/
+backups/
+config/
+server-data/
+
+# Built packages
+*.exe
+*.zip
+*.tar.gz
+
+# Temporary/build data
+tmp/
+build/
+dist/
+*.log
+
+# Editor/system
+.DS_Store
+Thumbs.db

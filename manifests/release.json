@@ -1,0 +1,8 @@
+{
+  "product": "Droneburg Valheim Modpack",
+  "release": "1.1.0",
+  "valheim": "1.0.14",
+  "status": "development",
+  "tidychests_radius_m": 90,
+  "tidychests_scan_radius_m": 90
+}
