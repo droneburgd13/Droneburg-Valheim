@@ -1,0 +1,155 @@
+{
+  "community": "valheim",
+  "mods": [
+    {
+      "id": "BepInExPack_Valheim",
+      "namespace": "denikson",
+      "package": "BepInExPack_Valheim",
+      "current": "5.4.2350",
+      "scope": ["client"],
+      "mode": "framework"
+    },
+    {
+      "id": "Jotunn",
+      "namespace": "ValheimModding",
+      "package": "Jotunn",
+      "current": "2.30.0",
+      "scope": ["server", "client"],
+      "server_dir": "Jotunn",
+      "client_dir": "Jotunn"
+    },
+    {
+      "id": "EquipmentAndQuickSlots",
+      "namespace": "RandyKnapp",
+      "package": "EquipmentAndQuickSlots",
+      "current": "3.1.3",
+      "scope": ["server", "client"],
+      "server_dir": "EquipmentAndQuickSlots",
+      "client_dir": "EquipmentAndQuickSlots"
+    },
+    {
+      "id": "TillValhalla",
+      "namespace": "kevinwilso00",
+      "package": "TillValhalla",
+      "current": "2.4.21",
+      "scope": ["server", "client"],
+      "server_dir": "TillValhalla",
+      "client_dir": "TillValhalla"
+    },
+    {
+      "id": "TreesReborn",
+      "namespace": "TastyChickenLegs",
+      "package": "TreesReborn",
+      "current": "1.1.3",
+      "scope": ["server", "client"],
+      "server_dir": "TreesReborn",
+      "client_dir": "TreesReborn"
+    },
+    {
+      "id": "OneMapToRuleThemAll",
+      "namespace": "DrummerCraig",
+      "package": "OneMapToRuleThemAll",
+      "current": "2.8.1",
+      "scope": ["server", "client"],
+      "server_dir": "OneMapToRuleThemAll",
+      "client_dir": "OneMapToRuleThemAll"
+    },
+    {
+      "id": "Health_Stamina_Eitr_Manager",
+      "namespace": "Valesthor",
+      "package": "Health_Stamina_Eitr_Manager",
+      "current": "1.0.3",
+      "scope": ["server", "client"],
+      "server_dir": "HealthStaminaEitrManager",
+      "client_dir": "HealthStaminaEitrManager"
+    },
+    {
+      "id": "TidyChests",
+      "namespace": "Muindor",
+      "package": "TidyChests",
+      "current": "1.2.1",
+      "scope": ["server", "client"],
+      "server_dir": "TidyChests",
+      "client_dir": "TidyChests",
+      "mode": "custom_90m"
+    },
+    {
+      "id": "FoodDurationMultiplier",
+      "namespace": "blacks7ar",
+      "package": "FoodDurationMultiplier",
+      "current": "1.1.7",
+      "scope": ["server", "client"],
+      "server_dir": "FoodDurationMultiplier",
+      "client_dir": "FoodDurationMultiplier"
+    },
+    {
+      "id": "Tommys_Ship_Speed",
+      "namespace": "TommysMods",
+      "package": "Tommys_Ship_Speed",
+      "current": "1.1.0",
+      "scope": ["server", "client"],
+      "server_dir": "TommysShipSpeed",
+      "client_dir": "TommysShipSpeed"
+    },
+    {
+      "id": "HUDCompass",
+      "namespace": "Neobotics",
+      "package": "HUDCompass",
+      "current": "1.2.0",
+      "scope": ["server", "client"],
+      "server_dir": "HUDCompass",
+      "client_dir": "HUDCompass"
+    },
+    {
+      "id": "Comfortable",
+      "namespace": "Crystal",
+      "package": "Comfortable",
+      "current": "1.2.3",
+      "scope": ["server", "client"],
+      "server_dir": "Comfortable",
+      "client_dir": "Comfortable"
+    },
+    {
+      "id": "ConditionalConfigSync",
+      "namespace": "shudnal",
+      "package": "ConditionalConfigSync",
+      "current": "1.0.8",
+      "scope": ["server", "client"],
+      "server_dir": "ConditionalConfigSync",
+      "client_dir": "ConditionalConfigSync"
+    },
+    {
+      "id": "HaulersHelper",
+      "namespace": "Azumatt",
+      "package": "HaulersHelper",
+      "current": "1.0.4",
+      "scope": ["server", "client"],
+      "server_dir": "HaulersHelper",
+      "client_dir": "HaulersHelper"
+    },
+    {
+      "id": "PlantEasily",
+      "namespace": "Advize",
+      "package": "PlantEasily",
+      "current": "2.2.0",
+      "scope": ["client"],
+      "client_dir": "PlantEasily"
+    },
+    {
+      "id": "RememberServerPassword",
+      "namespace": "MagiCorp",
+      "package": "RememberServerPassword",
+      "current": "1.2.4",
+      "scope": ["client"],
+      "client_dir": "RememberServerPassword"
+    },
+    {
+      "id": "Unshamed",
+      "namespace": "Azumatt",
+      "package": "Unshamed",
+      "current": "1.0.5",
+      "scope": ["client"],
+      "client_dir": "Unshamed"
+    }
+  ]
+}
