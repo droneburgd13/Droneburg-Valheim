@@ -35,6 +35,7 @@ exec > >(tee -a "$LOG") 2>&1
 STAGE="initialization"
 BACKUP=""
 TMP=""
+PUBLISHED=0
 
 fail() {
     RC=$?
@@ -43,26 +44,46 @@ fail() {
     echo
     echo "FAILURE during stage: $STAGE"
 
-    if [[ -n "$BACKUP" && -d "$BACKUP" ]]; then
-        echo "Restoring server plugin/config snapshot..."
+    if [[ "$PUBLISHED" -eq 0 ]]; then
+        if [[ -n "$BACKUP" && -d "$BACKUP" ]]; then
+            echo "Restoring server plugin/config snapshot..."
 
-        rm -rf "$SERVER_PLUGINS"
-        cp -a "$BACKUP/plugins" "$SERVER_PLUGINS"
+            rm -rf "$SERVER_PLUGINS"
+            cp -a "$BACKUP/plugins" "$SERVER_PLUGINS"
 
-        if [[ -d "$BACKUP/config" ]]; then
-            cp -a "$BACKUP/config"/. "$SERVER_CFG"/
+            if [[ -d "$BACKUP/config" ]]; then
+                cp -a "$BACKUP/config"/. "$SERVER_CFG"/
+            fi
+
+            if [[ -s "$BACKUP/client-workspace.tar.gz" ]]; then
+                echo "Restoring client workspace..."
+
+                rm -rf "$CLIENT"
+
+                tar -C "$(dirname "$CLIENT")" \
+                    -xzf "$BACKUP/client-workspace.tar.gz"
+            fi
+
+            cd "$ROOT"
+            docker compose up -d --force-recreate || true
         fi
 
-        cd "$ROOT"
-        docker compose up -d --force-recreate || true
-    fi
-
-    "$NOTIFY" \
-      "❌ **Droneburg Valheim automatic release failed**
+        "$NOTIFY" \
+          "❌ **Droneburg Valheim automatic release failed**
 Stage: $STAGE
 No installer was published.
 Check: $LOG" \
-      || true
+          || true
+    else
+        echo "Release was already published; refusing rollback."
+
+        "$NOTIFY" \
+          "⚠️ **Droneburg Valheim release published, but a post-release step failed**
+Stage: $STAGE
+The published installer remains valid.
+Check: $LOG" \
+          || true
+    fi
 
     [[ -n "$TMP" ]] && rm -rf "$TMP"
 
@@ -666,13 +687,27 @@ git add \
   docs/DRONEBURG-MODPACK.txt \
   "docs/CHANGELOG-v${NEW_RELEASE}.txt"
 
-git commit -m "Release Droneburg Valheim Modpack v${NEW_RELEASE}"
-git push
+if ! git diff --cached --quiet; then
+    git commit -m "Release Droneburg Valheim Modpack v${NEW_RELEASE}"
+    git push
+else
+    echo "Release source already committed; continuing."
+fi
 
-git tag -a "v${NEW_RELEASE}" \
-  -m "Droneburg Valheim Modpack v${NEW_RELEASE}"
+if git rev-parse "v${NEW_RELEASE}" >/dev/null 2>&1; then
+    echo "Local tag v${NEW_RELEASE} already exists."
+else
+    git tag -a "v${NEW_RELEASE}" \
+      -m "Droneburg Valheim Modpack v${NEW_RELEASE}"
+fi
 
-git push origin "v${NEW_RELEASE}"
+if git ls-remote --exit-code --tags origin \
+    "refs/tags/v${NEW_RELEASE}" >/dev/null 2>&1
+then
+    echo "Remote tag v${NEW_RELEASE} already exists."
+else
+    git push origin "v${NEW_RELEASE}"
+fi
 
 STAGE="GitHub release"
 
@@ -698,14 +733,22 @@ RELEASE_NOTES="$TMP/release-notes.md"
     echo "Existing Droneburg gameplay policy was reapplied and validated."
 } >"$RELEASE_NOTES"
 
-gh release create "v${NEW_RELEASE}" \
-  "$INSTALLER" \
-  "$INSTALLER.sha256" \
-  --repo droneburgd13/Droneburg-Valheim \
-  --title "Droneburg Valheim Modpack v${NEW_RELEASE}" \
-  --notes-file "$RELEASE_NOTES" \
-  --latest \
-  --verify-tag
+if gh release view "v${NEW_RELEASE}" \
+    --repo droneburgd13/Droneburg-Valheim >/dev/null 2>&1
+then
+    echo "GitHub release v${NEW_RELEASE} already exists; reusing it."
+else
+    gh release create "v${NEW_RELEASE}" \
+      "$INSTALLER" \
+      "$INSTALLER.sha256" \
+      --repo droneburgd13/Droneburg-Valheim \
+      --title "Droneburg Valheim Modpack v${NEW_RELEASE}" \
+      --notes-file "$RELEASE_NOTES" \
+      --latest \
+      --verify-tag
+fi
+
+PUBLISHED=1
 
 STAGE="state finalization"
 
@@ -731,6 +774,8 @@ CHANGE_TEXT="$(
   ' "$PLAN"
 )"
 
+set +e
+
 "$NOTIFY" \
 "🛡️ **Droneburg Valheim Modpack v${NEW_RELEASE} is live**
 
@@ -740,6 +785,16 @@ Server validation passed before publication.
 
 Download:
 $RELEASE_URL"
+
+NOTIFY_RC=$?
+
+set -e
+
+if [[ "$NOTIFY_RC" -ne 0 ]]; then
+    echo "WARNING: release succeeded but Discord notification failed."
+else
+    echo "Discord release notification sent."
+fi
 
 rm -rf "$TMP"
 TMP=""
