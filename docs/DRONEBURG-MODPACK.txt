@@ -1,33 +1,12 @@
 Droneburg Valheim Modpack
-Version: 1.1.0
-Built: 2026-09-17
+Version: 1.1.1
+Built: 2026-09-18
 
-Valheim: 1.0.14 / Deep North
+Valheim Steam Build: 21981590
 
-BepInExPack Valheim: 5.4.2350
-Jotunn: 2.30.0
-EquipmentAndQuickSlots: 3.1.3
-TillValhalla: 2.4.21
-TreesReborn: 1.1.3
-OneMapToRuleThemAll: 2.8.1
-Health Stamina Eitr Manager: 1.0.3
-PlantEasily: 2.2.0
-TidyChests: 1.2.1 Droneburg 90m
-FoodDurationMultiplier: 1.1.7
-Tommys Ship Speed: 1.1.0
-HUDCompass: 1.2.0
-RememberServerPassword: 1.2.4
-Unshamed: 1.0.5
-Comfortable: 1.2.3
-ConditionalConfigSync: 1.0.8
-HaulersHelper: 1.0.4
-
-Droneburg gameplay policy:
-- TidyChests stash/find radius: 90m
-- TidyChests browser scan radius: 90m
-- Cart cargo weight factor: 0.1
-- Plant grow-space restriction: disabled
-- Cultivated-ground requirement: disabled
-- Crafting roof requirement: disabled
-- Kiln auto-stop threshold: 300
-- Splash_WaterEmerge01.wav: removed
+TidyChests stash/find radius: 90m
+TidyChests browser scan radius: 90m
+Cart cargo weight factor: 0.1
+Plant grow-space restriction: disabled
+Cultivated-ground requirement: disabled
+Splash_WaterEmerge01.wav: removed

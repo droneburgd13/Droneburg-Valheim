@@ -3,7 +3,7 @@ Unicode True
 !include "MUI2.nsh"
 
 Name "Droneburg Valheim Modpack"
-OutFile "../../../packages/Droneburg-Valheim-Modpack-v1.1.0.exe"
+OutFile "../../../packages/Droneburg-Valheim-Modpack-v1.1.1.exe"
 
 InstallDir "$PROGRAMFILES64\Steam\steamapps\common\Valheim"
 
@@ -362,7 +362,7 @@ backup_ready:
     File /r "payload\*"
 
     DetailPrint ""
-    DetailPrint "Droneburg Valheim Modpack v1.1.0 installed."
+    DetailPrint "Droneburg Valheim Modpack v1.1.1 installed."
     DetailPrint "Installation directory: $INSTDIR"
     DetailPrint "Previous mod files, if present, are in: $BackupDir"
 
