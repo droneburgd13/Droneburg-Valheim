@@ -20,6 +20,7 @@ NOTIFY="/home/droneburgd13/scripts/discord_notify.sh"
 
 LOCK="$AUTO/release.lock"
 LOG="$AUTO/release.log"
+FAIL_MARKER="$AUTO/last-failure.key"
 
 mkdir -p "$AUTO"
 
@@ -36,6 +37,31 @@ STAGE="initialization"
 BACKUP=""
 TMP=""
 PUBLISHED=0
+
+notify_failure_once() {
+    local KEY="$1"
+    local MESSAGE="$2"
+
+    local OLD_KEY=""
+
+    if [[ -s "$FAIL_MARKER" ]]; then
+        OLD_KEY="$(cat "$FAIL_MARKER" 2>/dev/null || true)"
+    fi
+
+    if [[ "$OLD_KEY" == "$KEY" ]]; then
+        echo "Duplicate failure suppressed: $KEY"
+        return 0
+    fi
+
+    printf '%s
+' "$KEY" > "$FAIL_MARKER"
+
+    "$NOTIFY" "$MESSAGE" || true
+}
+
+clear_failure_marker() {
+    rm -f "$FAIL_MARKER"
+}
 
 fail() {
     RC=$?
@@ -68,21 +94,21 @@ fail() {
             docker compose up -d --force-recreate || true
         fi
 
-        "$NOTIFY" \
+        notify_failure_once \
+          "${STAGE}:${RC}" \
           "❌ **Droneburg Valheim automatic release failed**
 Stage: $STAGE
 No installer was published.
-Check: $LOG" \
-          || true
+Check: $LOG"
     else
         echo "Release was already published; refusing rollback."
 
-        "$NOTIFY" \
+        notify_failure_once \
+          "post-release:${STAGE}:${RC}" \
           "⚠️ **Droneburg Valheim release published, but a post-release step failed**
 Stage: $STAGE
 The published installer remains valid.
-Check: $LOG" \
-          || true
+Check: $LOG"
     fi
 
     [[ -n "$TMP" ]] && rm -rf "$TMP"
@@ -94,14 +120,16 @@ trap fail ERR
 
 STAGE="update detection"
 
-set +e
-"$REPO/scripts/plan-updates.py"
-PLAN_RC=$?
-set -e
+if "$REPO/scripts/plan-updates.py"; then
+    PLAN_RC=0
+else
+    PLAN_RC=$?
+fi
 
 case "$PLAN_RC" in
     0)
         echo "No Valheim or mod updates detected."
+        clear_failure_marker
         exit 0
         ;;
     10)
@@ -795,6 +823,24 @@ if [[ "$NOTIFY_RC" -ne 0 ]]; then
 else
     echo "Discord release notification sent."
 fi
+
+clear_failure_marker
+
+python3 - "$PLAN" "$NEW_RELEASE" <<'PYRESET'
+import json
+import sys
+from pathlib import Path
+
+p = Path(sys.argv[1])
+release = sys.argv[2]
+
+if p.exists():
+    d = json.loads(p.read_text())
+    d["previous_release"] = release
+    d["changes"] = []
+    d["missing"] = []
+    p.write_text(json.dumps(d, indent=2) + "\n")
+PYRESET
 
 rm -rf "$TMP"
 TMP=""
