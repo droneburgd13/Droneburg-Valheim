@@ -208,20 +208,149 @@ download_and_extract() {
       "$URL" \
       -o "$ZIP"
 
-    unzip -t "$ZIP" >/dev/null
-    unzip -q "$ZIP" -d "$OUT"
+    python3 - "$ZIP" "$OUT" <<'PYZIP'
+from pathlib import Path, PurePosixPath
+import shutil
+import sys
+import zipfile
+
+archive = Path(sys.argv[1])
+dest = Path(sys.argv[2]).resolve()
+
+if not zipfile.is_zipfile(archive):
+    raise SystemExit(f"Not a valid ZIP archive: {archive}")
+
+with zipfile.ZipFile(archive) as zf:
+    for info in zf.infolist():
+        # Thunderstore packages sometimes contain Windows separators.
+        normalized = info.filename.replace("\\", "/")
+
+        while normalized.startswith("/"):
+            normalized = normalized[1:]
+
+        path = PurePosixPath(normalized)
+
+        # Reject path traversal or otherwise unsafe members.
+        if not normalized or ".." in path.parts:
+            if ".." in path.parts:
+                raise SystemExit(
+                    f"Unsafe ZIP member detected: {info.filename}"
+                )
+            continue
+
+        target = dest.joinpath(*path.parts).resolve()
+
+        if target != dest and dest not in target.parents:
+            raise SystemExit(
+                f"ZIP member escapes destination: {info.filename}"
+            )
+
+        if info.is_dir() or normalized.endswith("/"):
+            target.mkdir(parents=True, exist_ok=True)
+            continue
+
+        target.parent.mkdir(parents=True, exist_ok=True)
+
+        with zf.open(info) as src, open(target, "wb") as dst:
+            shutil.copyfileobj(src, dst)
+
+files = [p for p in dest.rglob("*") if p.is_file()]
+
+if not files:
+    raise SystemExit("ZIP extracted successfully but contained no files")
+
+print(f"Extracted {len(files)} files", file=sys.stderr)
+PYZIP
 
     printf '%s\n' "$OUT"
+}
+
+resolve_plugin_payload() {
+    local SRC="$1"
+
+    if [[ -d "$SRC/BepInEx/plugins" ]]; then
+        printf '%s\n' "$SRC/BepInEx/plugins"
+        return 0
+    fi
+
+    if [[ -d "$SRC/plugins" ]]; then
+        printf '%s\n' "$SRC/plugins"
+        return 0
+    fi
+
+    # Some packages wrap everything in one top-level directory.
+    mapfile -t TOPDIRS < <(
+        find "$SRC" \
+          -mindepth 1 \
+          -maxdepth 1 \
+          -type d \
+          -print
+    )
+
+    if [[ "${#TOPDIRS[@]}" -eq 1 ]]; then
+        local ONLY="${TOPDIRS[0]}"
+
+        if [[ -d "$ONLY/BepInEx/plugins" ]]; then
+            printf '%s\n' "$ONLY/BepInEx/plugins"
+            return 0
+        fi
+
+        if [[ -d "$ONLY/plugins" ]]; then
+            printf '%s\n' "$ONLY/plugins"
+            return 0
+        fi
+
+        if find "$ONLY" \
+            -maxdepth 1 \
+            -type f \
+            -iname '*.dll' \
+            -print -quit |
+            grep -q .
+        then
+            printf '%s\n' "$ONLY"
+            return 0
+        fi
+    fi
+
+    # Root-level DLL packages are also common.
+    if find "$SRC" \
+        -maxdepth 1 \
+        -type f \
+        -iname '*.dll' \
+        -print -quit |
+        grep -q .
+    then
+        printf '%s\n' "$SRC"
+        return 0
+    fi
+
+    echo "Could not identify BepInEx plugin payload under: $SRC" >&2
+    return 1
 }
 
 install_package_tree() {
     local SRC="$1"
     local DST="$2"
 
+    local PAYLOAD
+    PAYLOAD="$(resolve_plugin_payload "$SRC")"
+
+    echo "Plugin payload: $PAYLOAD -> $DST" >&2
+
+    if ! find "$PAYLOAD" \
+        -type f \
+        -iname '*.dll' \
+        -print -quit |
+        grep -q .
+    then
+        echo "No DLL found in plugin payload: $PAYLOAD" >&2
+        return 1
+    fi
+
     rm -rf "$DST"
     mkdir -p "$DST"
 
-    cp -a "$SRC"/. "$DST"/
+    cp -a "$PAYLOAD"/. "$DST"/
 }
 
 STAGE="mod downloads and installation"
