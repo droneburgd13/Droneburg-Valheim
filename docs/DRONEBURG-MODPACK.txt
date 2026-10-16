@@ -1,8 +1,8 @@
 Droneburg Valheim Modpack
-Version: 1.1.1
-Built: 2026-09-18
+Version: 1.1.2
+Built: 2026-10-16
 
-Valheim Steam Build: 21981590
+Valheim Steam Build: 25909431
 
 TidyChests stash/find radius: 90m
 TidyChests browser scan radius: 90m
