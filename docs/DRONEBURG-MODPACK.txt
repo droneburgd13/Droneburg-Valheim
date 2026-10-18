@@ -1,6 +1,6 @@
 Droneburg Valheim Modpack
-Version: 1.1.2
-Built: 2026-10-16
+Version: 1.1.3
+Built: 2026-10-18
 
 Valheim Steam Build: 25909431
 
