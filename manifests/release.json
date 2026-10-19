@@ -1,11 +1,11 @@
 {
   "product": "Droneburg Valheim Modpack",
-  "release": "1.1.3",
+  "release": "1.1.4",
   "valheim_buildid": "25909431",
   "status": "released",
-  "released": "2026-10-18",
+  "released": "2026-10-19",
   "tidychests_radius_m": 90,
   "tidychests_scan_radius_m": 90,
   "cart_item_weight_factor": 0.1,
-  "installer": "Droneburg-Valheim-Modpack-v1.1.3.exe"
+  "installer": "Droneburg-Valheim-Modpack-v1.1.4.exe"
 }

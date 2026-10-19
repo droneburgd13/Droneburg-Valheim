@@ -1,0 +1,5 @@
+Droneburg Valheim Modpack v1.1.4
+2026-10-19
+
+Automated update:
+- TreesReborn: 1.1.7 -> 1.1.8
